@@ -1,0 +1,121 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Catálogo cerrado de roles del sistema
+enum Rol {
+  ADMIN
+  MUSICO
+  PROFESOR
+  FAMILIAR_ACADEMIA
+}
+
+// Modelo de Usuario
+model Usuario {
+  id            Int          @id @default(autoincrement())
+  email         String       @unique
+  password      String       // ¡Aquí guardaremos el hash encriptado, jamás texto plano!
+  nombre        String
+  apellido      String
+  rol           Rol          @default(MUSICO) // Por defecto, se registra como músico raso
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Relación: Un músico/profesor puede tener un instrumento principal asignado
+  instrumentoId Int?
+  instrumento   Instrumento? @relation(fields: [instrumentoId], references: [id], onDelete: SetNull)
+  voz           String?
+  alumnos       Alumno[]
+}
+
+// MODELO DE ALUMNO
+model Alumno {
+  id              Int       @id @default(autoincrement())
+  nombre          String
+  apellidos       String
+  fechaNacimiento DateTime?
+  
+  // Clave foránea: ¿Quién es el familiar responsable de este alumno en la app?
+  familiarId      Int
+  familiar        Usuario   @relation(fields: [familiarId], references: [id], onDelete: Restrict)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// MODELO DE OBRA (La pieza musical)
+model Obra {
+  id              Int          @id @default(autoincrement())
+  titulo          String
+  compositor      String
+  arreglista      String?      // El signo '?' significa que este campo puede ser nulo (opcional)
+  genero          String
+  ubicacionFisica String?      // Ej: "Caja 14", "Estantería A"
+  duracionEstimada Int?        // Duración en segundos
+  createdAt       DateTime     @default(now()) // Fecha de registro automático
+  updatedAt       DateTime     @updatedAt      // Se actualiza sola si modificamos la obra
+
+  // Relación inversa: Una obra tiene muchas particellas
+  particellas     Particella[]
+}
+
+// MODELO DE INSTRUMENTO (Catálogo general)
+model Instrumento {
+  id                Int                @id @default(autoincrement())
+  nombre            String             @unique // No puede haber dos instrumentos con el mismo nombre
+  familia           String             // Madera, Metal, Percusión, etc.
+  
+  // Relaciones inversas
+  particellas       Particella[]
+  detallesPlantilla DetallePlantilla[]
+
+  usuarios          Usuario[]
+}
+
+// MODELO DE PARTICELLA (El PDF específico de un instrumento para una obra)
+model Particella {
+  id            Int         @id @default(autoincrement())
+  nombreArchivo String      // Aquí guardaremos el nombre único del PDF en el servidor (ej: 17643928-flauta.pdf)
+  voz           String      // Ej: "1º", "2º", "Principal", "Única"
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relación con la Obra (Si se borra la obra, se borran sus partituras en cascada)
+  obraId        Int
+  obra          Obra        @relation(fields: [obraId], references: [id], onDelete: Cascade)
+
+  // Relación con el Instrumento
+  instrumentoId Int
+  instrumento   Instrumento @relation(fields: [instrumentoId], references: [id], onDelete: Restrict)
+}
+
+// MODELO DE PLANTILLA DE IMPRESIÓN (Configuraciones de guardado)
+model PlantillaImpresion {
+  id        Int                @id @default(autoincrement())
+  nombre    String             @unique // Ej: "Banda Completa", "Pasacalles"
+  
+  // Relación: Una plantilla tiene muchos detalles de configuración
+  detalles  DetallePlantilla[]
+}
+
+// TABLA INTERMEDIA (Detalle de cuántas copias se imprimen por instrumento/voz)
+model DetallePlantilla {
+  id           Int                @id @default(autoincrement())
+  voz          String             // Debe coincidir con la voz de la particella (Ej: "1º")
+  cantidad     Int                // Número de copias físicas a imprimir (Ej: 2, 3)
+
+  // Claves foráneas
+  plantillaId  Int
+  instrumentoId Int
+
+  // Relaciones
+  plantilla    PlantillaImpresion @relation(fields: [plantillaId], references: [id], onDelete: Cascade)
+  instrumento  Instrumento        @relation(fields: [instrumentoId], references: [id], onDelete: Restrict)
+
+  // No podemos duplicar la configuración de un mismo instrumento y voz en la misma plantilla
+  @@unique([plantillaId, instrumentoId, voz])
+}
