@@ -4,7 +4,6 @@ import prisma from '../config/db';
 
 export const registrarUsuario = async (req: any, res: any) => {
   try {
-    // 1. Extraemos 'voz' del cuerpo de la petición
     const { email, password, nombre, apellido, rol, instrumentoId, voz } = req.body;
     const usuarioExistente = await prisma.usuario.findUnique({ where: { email } });
 
@@ -13,7 +12,6 @@ export const registrarUsuario = async (req: any, res: any) => {
     const saltRounds = 10;
     const passwordEncriptada = await bcrypt.hash(password, saltRounds);
 
-    // 2. Guardamos la voz en la base de datos
     const nuevoUsuario = await prisma.usuario.create({
       data: { 
         email, 
@@ -26,6 +24,7 @@ export const registrarUsuario = async (req: any, res: any) => {
       },
     });
 
+    // Quitamos la contraseña cuando devolvamos el usuario para que no se vea
     const { password: _, ...usuarioSinPassword } = nuevoUsuario;
     res.status(201).json(usuarioSinPassword);
   } catch (error) {

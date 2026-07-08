@@ -16,7 +16,6 @@ async function main() {
     { nombre: 'Flautín', familia: 'Viento Madera' },
     { nombre: 'Flauta', familia: 'Viento Madera' },
     { nombre: 'Oboe', familia: 'Viento Madera' },
-    { nombre: 'Fagot', familia: 'Viento Madera' },
     { nombre: 'Requinto', familia: 'Viento Madera' },
     { nombre: 'Clarinete', familia: 'Viento Madera' },
     { nombre: 'Clarinete Bajo', familia: 'Viento Madera' },
@@ -26,7 +25,6 @@ async function main() {
     
     // Viento Metal
     { nombre: 'Trompeta', familia: 'Viento Metal' },
-    { nombre: 'Fliscorno', familia: 'Viento Metal' },
     { nombre: 'Trompa', familia: 'Viento Metal' },
     { nombre: 'Trombón', familia: 'Viento Metal' },
     { nombre: 'Bombardino', familia: 'Viento Metal' },
@@ -34,8 +32,6 @@ async function main() {
     
     // Percusión y Cuerda
     { nombre: 'Percusión', familia: 'Percusión' },
-    { nombre: 'Violoncello', familia: 'Cuerda' },
-    { nombre: 'Contrabajo', familia: 'Cuerda' }
   ];
 
   // 3. Inyectamos todos de golpe

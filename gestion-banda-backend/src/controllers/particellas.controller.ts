@@ -6,6 +6,9 @@ export const obtenerMisPartituras = async (req: any, res: any) => {
   try {
     const usuarioId = req.usuario.id;
     
+    // Novedad: Capturamos lo que el usuario escribe en el buscador (si no escribe nada, es un string vacío)
+    const terminoBusqueda = req.query.q as string || '';
+
     const usuarioCompleto = await prisma.usuario.findUnique({
       where: { id: usuarioId },
       select: { instrumentoId: true, voz: true } 
@@ -15,25 +18,41 @@ export const obtenerMisPartituras = async (req: any, res: any) => {
       return res.status(400).json({ error: 'Tu usuario no tiene ningún instrumento asignado en el sistema.' });
     }
 
-    // 1. Preparamos las condiciones base (su voz exacta y los papeles generales)
+    // 1. Tu lógica experta intacta
     const condicionesVoz = [
       { voz: usuarioCompleto.voz || 'Única' },
       { voz: 'Única' }
     ];
 
-    // 2. Lógica experta: Si es el Principal, le damos acceso también a las partituras de 1º
     if (usuarioCompleto.voz === 'Principal') {
       condicionesVoz.push({ voz: '1º' });
     }
 
-    // 3. Hacemos la consulta a Prisma
+    // 2. Consulta a Prisma combinada
     const misPartituras = await prisma.particella.findMany({
       where: {
+        // Regla 1: Su instrumento
         instrumentoId: usuarioCompleto.instrumentoId,
-        OR: condicionesVoz
+        
+        // Regla 2: Tu array dinámico de voces permitidas
+        OR: condicionesVoz,
+        
+        // Regla 3 (Novedad): Filtro de búsqueda por título
+        obra: {
+          titulo: {
+            contains: terminoBusqueda,
+            mode: 'insensitive' // Para que dé igual si busca "Pasodoble" o "pasodoble"
+          }
+        }
       },
       include: {
         obra: true 
+      },
+      // Un pequeño extra: ordenarlas alfabéticamente para que queden bonitas
+      orderBy: {
+        obra: {
+          titulo: 'asc'
+        }
       }
     });
 
