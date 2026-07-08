@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// 1. Definimos la forma de los datos que nos enviará Prisma
 interface Particella {
   id: number;
   voz: string;
@@ -17,18 +16,21 @@ export default function Panel() {
   const [partituras, setPartituras] = useState<Particella[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
+  
+  // NUEVO: Estado para guardar el texto del buscador
+  const [terminoBusqueda, setTerminoBusqueda] = useState('');
 
-  // 2. useEffect se ejecuta automáticamente al cargar el componente
+  // Modificamos el useEffect para que dependa del término de búsqueda
   useEffect(() => {
-    const cargarPartituras = async () => {
+    // NUEVO: Usamos un temporizador (debounce) para no saturar el servidor al teclear rápido
+    const temporizador = setTimeout(async () => {
       try {
-        // Rescatamos el pase VIP
         const token = localStorage.getItem('tokenBanda');
         
-        // Llamamos a nuestra API
-        const respuesta = await fetch('http://localhost:3000/api/particellas/mis-partituras', {
+        // NUEVO: Añadimos ?q=... a la URL
+        const respuesta = await fetch(`${import.meta.env.VITE_API_URL}/api/particellas/mis-partituras?q=${terminoBusqueda}`, {
           headers: {
-            'Authorization': `Bearer ${token}` // ¡Aquí está la magia de la seguridad!
+            'Authorization': `Bearer ${token}`
           }
         });
 
@@ -38,17 +40,18 @@ export default function Panel() {
           throw new Error(datos.error || 'Error al cargar las partituras');
         }
 
-        // Guardamos los datos en el estado
         setPartituras(datos);
       } catch (err: any) {
         setError(err.message);
       } finally {
         setCargando(false);
       }
-    };
+    }, 300); // Espera 300ms antes de buscar
 
-    cargarPartituras();
-  }, []);
+    // Limpiamos el temporizador si el usuario sigue escribiendo
+    return () => clearTimeout(temporizador);
+    
+  }, [terminoBusqueda]); // NUEVO: El useEffect se vuelve a ejecutar si terminoBusqueda cambia
 
   const cerrarSesion = () => {
     localStorage.removeItem('tokenBanda');
@@ -59,7 +62,7 @@ export default function Panel() {
     <div className="min-h-screen bg-slate-50 p-6 md:p-12">
       <div className="max-w-5xl mx-auto">
         
-        {/* Cabecera */}
+        {/* Cabecera intacta */}
         <div className="flex flex-col sm:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-8 gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">Mi Archivo Musical</h1>
@@ -67,7 +70,6 @@ export default function Panel() {
           </div>
           
           <div className="flex gap-3">
-            {/* Leemos el rol del localStorage. Si es ADMIN o PROFESOR, mostramos el botón directo */}
             {(localStorage.getItem('rolBanda') === 'ADMIN' || localStorage.getItem('rolBanda') === 'PROFESOR') && (
               <button 
                 onClick={() => navigate('/admin')}
@@ -93,13 +95,27 @@ export default function Panel() {
           </div>
         </div>
 
+        {/* NUEVO: Barra de búsqueda visual */}
+        <div className="mb-6 relative">
+          <input
+            type="text"
+            value={terminoBusqueda}
+            onChange={(e) => setTerminoBusqueda(e.target.value)}
+            placeholder="Buscar por título de obra..."
+            className="w-full px-5 py-4 pl-12 text-slate-700 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all"
+          />
+          {/* Icono de Lupa */}
+          <svg className="absolute left-4 top-4 h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+
         {/* Zona de contenido dinámico */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
           
-          {/* Estados de Carga y Error */}
           {cargando && (
             <div className="p-12 text-center text-slate-400 font-medium animate-pulse">
-              Cargando repertorio...
+              Buscando repertorio...
             </div>
           )}
 
@@ -109,10 +125,12 @@ export default function Panel() {
             </div>
           )}
 
-          {/* Tabla de Partituras (Solo se muestra si hay datos y no está cargando) */}
+          {/* Modificamos el mensaje vacío por si busca algo que no existe */}
           {!cargando && !error && partituras.length === 0 && (
-            <div className="p-12 text-center text-slate-400 font-medium">
-              Aún no tienes partituras asignadas a tu instrumento.
+            <div className="p-12 text-center text-slate-500 font-medium">
+              {terminoBusqueda 
+                ? 'No se encontraron partituras con ese nombre para tu instrumento.' 
+                : 'Aún no tienes partituras asignadas a tu instrumento.'}
             </div>
           )}
 
@@ -121,7 +139,7 @@ export default function Panel() {
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100 text-slate-500 text-sm uppercase tracking-wider">
                   <th className="p-4 font-semibold">Obra</th>
-                  <th className="p-4 font-semibold">Compositor</th>
+                  <th className="p-4 font-semibold hidden md:table-cell">Compositor</th> {/* Ocultamos compositor en móviles para ahorrar espacio */}
                   <th className="p-4 font-semibold text-center">Voz</th>
                   <th className="p-4 font-semibold text-right">Acción</th>
                 </tr>
@@ -132,23 +150,23 @@ export default function Panel() {
                     <td className="p-4 font-medium text-slate-800">
                       {particella.obra.titulo}
                     </td>
-                    <td className="p-4 text-slate-600">
+                    <td className="p-4 text-slate-600 hidden md:table-cell">
                       {particella.obra.compositor}
                     </td>
                     <td className="p-4 text-center">
-                      <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium border border-blue-100">
+                      <span className="inline-block px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-sm font-medium border border-indigo-100">
                         {particella.voz}
                       </span>
                     </td>
                     <td className="p-4 text-right">
-                      {/* El enlace apunta a la ruta estática que expusimos en Express */}
                       <a 
-                        href={`http://localhost:3000/descargar-partitura/${particella.nombreArchivo}`}
+                        href={`${import.meta.env.VITE_API_URL}/descargar-partitura/${particella.nombreArchivo}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
                       >
-                        Descargar PDF
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+                        Ver PDF
                       </a>
                     </td>
                   </tr>

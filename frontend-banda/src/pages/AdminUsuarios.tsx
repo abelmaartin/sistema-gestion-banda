@@ -14,8 +14,8 @@ export default function AdminUsuarios() {
     const headers = { 'Authorization': `Bearer ${localStorage.getItem('tokenBanda')}` };
     try {
       const [resUsu, resInst] = await Promise.all([
-        fetch('http://localhost:3000/api/usuarios', { headers }),
-        fetch('http://localhost:3000/api/instrumentos', { headers })
+        fetch(`${import.meta.env.VITE_API_URL}/api/usuarios`, { headers }),
+        fetch(`${import.meta.env.VITE_API_URL}/api/instrumentos`, { headers })
       ]);
       if (resUsu.ok && resInst.ok) {
         setUsuarios(await resUsu.json());
@@ -34,7 +34,7 @@ export default function AdminUsuarios() {
     if (!window.confirm(`¿Estás seguro de eliminar a ${nombre} de la banda permanentemente?`)) return;
     
     try {
-      const res = await fetch(`http://localhost:3000/api/usuarios/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/usuarios/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('tokenBanda')}` }
       });
@@ -57,7 +57,7 @@ export default function AdminUsuarios() {
 
   const guardarEdicion = async (id: number) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/usuarios/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/usuarios/${id}`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',

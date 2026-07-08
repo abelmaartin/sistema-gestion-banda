@@ -6,7 +6,7 @@ export default function AdminPartituras() {
   const [partituras, setPartituras] = useState<any[]>([]);
 
   const cargarTodas = async () => {
-    const res = await fetch('http://localhost:3000/api/particellas/todas', {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/particellas/todas`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('tokenBanda')}` }
     });
     if (res.ok) setPartituras(await res.json());
@@ -20,7 +20,7 @@ export default function AdminPartituras() {
     if (!window.confirm('¿Seguro que quieres borrar este PDF permanentemente?')) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/api/particellas/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/particellas/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('tokenBanda')}` }
       });
@@ -85,7 +85,7 @@ export default function AdminPartituras() {
                   <td className="p-4"><span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-sm">{p.voz}</span></td>
                   <td className="p-4 text-right flex justify-end gap-3">
                     <a 
-                      href={`http://localhost:3000/descargar-partitura/${p.nombreArchivo}`} 
+                      href={`${import.meta.env.VITE_API_URL}/descargar-partitura/${p.nombreArchivo}`} 
                       target="_blank" 
                       rel="noreferrer"
                       className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm transition-colors"

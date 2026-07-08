@@ -18,7 +18,7 @@ export default function RegistrarUsuario() {
   useEffect(() => {
     const cargarInstrumentos = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/instrumentos', {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/instrumentos`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('tokenBanda')}` }
         });
         if (res.ok) setInstrumentos(await res.json());
@@ -34,7 +34,7 @@ export default function RegistrarUsuario() {
     setEstado({ tipo: 'cargando', mensaje: 'Registrando usuario en el sistema...' });
 
     try {
-      const res = await fetch('http://localhost:3000/api/auth/registro', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/registro`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

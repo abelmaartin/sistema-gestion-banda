@@ -20,8 +20,8 @@ export default function SubirPartitura() {
 
       try {
         const [resObras, resInst] = await Promise.all([
-          fetch('http://localhost:3000/api/obras', { headers }),
-          fetch('http://localhost:3000/api/instrumentos', { headers })
+          fetch(`${import.meta.env.VITE_API_URL}/api/obras`, { headers }),
+          fetch(`${import.meta.env.VITE_API_URL}/api/instrumentos`, { headers })
         ]);
 
         if (resObras.ok && resInst.ok) {
@@ -48,7 +48,7 @@ export default function SubirPartitura() {
       formData.append('obraId', obraId);
       formData.append('instrumentoId', instrumentoId);
 
-      const res = await fetch('http://localhost:3000/api/particellas', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/particellas`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('tokenBanda')}` },
         body: formData

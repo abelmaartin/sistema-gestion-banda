@@ -14,7 +14,7 @@ export default function Perfil() {
   useEffect(() => {
     const cargarPerfil = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/usuarios/mi-perfil', {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/usuarios/mi-perfil`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('tokenBanda')}` }
         });
         if (res.ok) setPerfil(await res.json());
@@ -37,7 +37,7 @@ export default function Perfil() {
     setEstado({ tipo: 'cargando', mensaje: 'Actualizando...' });
 
     try {
-      const res = await fetch('http://localhost:3000/api/usuarios/mi-password', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/usuarios/mi-password`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
