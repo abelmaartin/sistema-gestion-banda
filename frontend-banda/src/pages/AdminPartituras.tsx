@@ -60,7 +60,7 @@ export default function AdminPartituras() {
             <button 
               onClick={() => navigate('/admin/crear-obra')} 
               className="px-5 py-2.5 bg-amber-500 text-white font-medium rounded-xl shadow-sm hover:bg-amber-600 transition-colors"
-            >
+            > 
               + Añadir Obra
             </button>
 
