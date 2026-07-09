@@ -62,13 +62,9 @@ export default function CrearObra() {
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
       {/* Cabecera con botón de volver */}
       <div className="flex justify-between items-center mb-6 border-b pb-4">
-        <h2 className="text-2xl font-bold text-gray-800">Añadir Nueva Obra</h2>
-        <button 
-          onClick={() => navigate('/admin')} 
-          className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm transition-colors"
-        >
-          ← Volver a Gestión
-        </button>
+        <button onClick={() => navigate('/admin')} className="text-sm text-slate-500 hover:text-slate-800">
+            ← Volver a Gestión
+          </button>
       </div>
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Añadir Nueva Obra al Archivo</h2>
       
