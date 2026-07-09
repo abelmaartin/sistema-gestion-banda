@@ -57,6 +57,13 @@ export default function AdminPartituras() {
               👥 Gestionar Usuarios
             </button>
 
+            <button 
+              onClick={() => navigate('/admin/crear-obra')} 
+              className="px-5 py-2.5 bg-amber-500 text-white font-medium rounded-xl shadow-sm hover:bg-amber-600 transition-colors"
+            >
+              + Añadir Obra
+            </button>
+
             <button onClick={() => navigate('/subir')} className="px-5 py-2.5 bg-indigo-600 text-white font-medium rounded-xl shadow-sm hover:bg-indigo-700 transition-colors">
               + Subir Nueva Partitura
             </button>
@@ -85,7 +92,7 @@ export default function AdminPartituras() {
                   <td className="p-4"><span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-sm">{p.voz}</span></td>
                   <td className="p-4 text-right flex justify-end gap-3">
                     <a 
-                      href={`${import.meta.env.VITE_API_URL}/descargar-partitura/${p.nombreArchivo}`} 
+                      href={p.nombreArchivo} 
                       target="_blank" 
                       rel="noreferrer"
                       className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm transition-colors"

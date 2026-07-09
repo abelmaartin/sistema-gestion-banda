@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import RegistrarUsuario from './pages/RegistrarUsuario';
 import AdminUsuarios from './pages/AdminUsuarios';
 import Perfil from './pages/Perfil';
+import CrearObra from './pages/CrearObra'; 
 
 function App() {
   return (
@@ -46,6 +47,16 @@ function App() {
           element={
             <ProtectedRoute>
               <AdminPartituras />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* --- NUEVA RUTA: Crear Obra --- */}
+        <Route 
+          path="/admin/crear-obra" 
+          element={
+            <ProtectedRoute>
+              <CrearObra />
             </ProtectedRoute>
           } 
         />
