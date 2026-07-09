@@ -1,6 +1,9 @@
 import prisma from '../config/db';
 import fs from 'fs';
 import path from 'path';
+import cloudinary from '../config/cloudinary';
+import { Request, Response } from 'express';
+import { Readable } from 'stream';
 
 export const obtenerMisPartituras = async (req: any, res: any) => {
   try {
@@ -28,16 +31,16 @@ export const obtenerMisPartituras = async (req: any, res: any) => {
       condicionesVoz.push({ voz: '1º' });
     }
 
+    // NUEVA REGLA: Si es 3º o Bajo, le damos permiso para leer los papeles de 2º
+    if (usuarioCompleto.voz === '3º' || usuarioCompleto.voz === 'Bajo') {
+      condicionesVoz.push({ voz: '2º' });
+    }
+
     // 2. Consulta a Prisma combinada
     const misPartituras = await prisma.particella.findMany({
       where: {
-        // Regla 1: Su instrumento
         instrumentoId: usuarioCompleto.instrumentoId,
-        
-        // Regla 2: Tu array dinámico de voces permitidas
         OR: condicionesVoz,
-        
-        // Regla 3 (Novedad): Filtro de búsqueda por título
         obra: {
           titulo: {
             contains: terminoBusqueda,
@@ -48,7 +51,6 @@ export const obtenerMisPartituras = async (req: any, res: any) => {
       include: {
         obra: true 
       },
-      // Un pequeño extra: ordenarlas alfabéticamente para que queden bonitas
       orderBy: {
         obra: {
           titulo: 'asc'
@@ -98,23 +100,49 @@ export const eliminarParticella = async (req: any, res: any) => {
   }
 };
 
-export const subirParticella = async (req: any, res: any) => {
+export const subirParticella = async (req: Request, res: Response) => {
   try {
-    if (!req.file) return res.status(400).json({ error: 'Por favor, selecciona un archivo PDF válido.' });
+    // 1. Verificamos que el archivero haya enviado un archivo
+    if (!req.file) {
+      return res.status(400).json({ error: 'Debes adjuntar un PDF.' });
+    }
 
-    const { voz, obraId, instrumentoId } = req.body;
+    const { obraId, instrumentoId, voz } = req.body;
+
+    // 2. Función para subir el PDF desde la memoria de Node hasta Cloudinary
+    const subirACloudinary = new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { 
+          folder: 'archivo_musical_isora', // Carpeta que se creará en tu Cloudinary
+          resource_type: 'auto' // 'auto' es necesario para aceptar PDFs
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      );
+      // Inyectamos el buffer de memoria en el stream de subida
+      Readable.from(req.file!.buffer).pipe(uploadStream);
+    });
+
+    // Esperamos a que Cloudinary termine y nos devuelva los datos
+    const resultadoCloudinary: any = await subirACloudinary;
+
+    // 3. Guardamos TODO en la base de datos de Neon usando Prisma
     const nuevaParticella = await prisma.particella.create({
       data: {
-        nombreArchivo: req.file.filename,
-        voz,
+        voz: voz,
+        // En lugar de un nombre local, guardamos la URL pública que nos dio Cloudinary
+        nombreArchivo: resultadoCloudinary.secure_url, 
         obraId: parseInt(obraId),
         instrumentoId: parseInt(instrumentoId)
       }
     });
 
-    res.status(201).json({ mensaje: 'Partitura subida y registrada con éxito', particella: nuevaParticella });
+    res.status(201).json(nuevaParticella);
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error al procesar la subida de la partitura.' });
+    console.error('Error al subir la partitura:', error);
+    res.status(500).json({ error: 'Error interno del servidor al procesar el archivo.' });
   }
 };

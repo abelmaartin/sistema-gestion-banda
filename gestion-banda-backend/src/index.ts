@@ -12,7 +12,6 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use('/descargar-partitura', express.static('archivos_musicales'));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/obras', obrasRoutes);
