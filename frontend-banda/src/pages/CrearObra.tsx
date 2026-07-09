@@ -62,11 +62,11 @@ export default function CrearObra() {
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
       {/* Cabecera con botón de volver */}
       <div className="flex justify-between items-center mb-6 border-b pb-4">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">Añadir Nueva Obra al Archivo</h2>
         <button onClick={() => navigate('/admin')} className="text-sm text-slate-500 hover:text-slate-800">
             ← Volver a Gestión
           </button>
       </div>
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Añadir Nueva Obra al Archivo</h2>
       
       {estado.error && <div className="p-3 mb-4 text-red-700 bg-red-100 rounded">{estado.error}</div>}
       {estado.exito && <div className="p-3 mb-4 text-green-700 bg-green-100 rounded">{estado.exito}</div>}
