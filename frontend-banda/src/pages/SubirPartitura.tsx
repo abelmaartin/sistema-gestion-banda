@@ -118,7 +118,19 @@ export default function SubirPartitura() {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Archivo PDF</label>
-            <input type="file" accept="application/pdf" onChange={(e) => setArchivo(e.target.files ? e.target.files[0] : null)} className="w-full" required />
+            <input 
+              type="file" 
+              accept="application/pdf" 
+              onChange={(e) => setArchivo(e.target.files ? e.target.files[0] : null)} 
+              className="w-full text-sm text-slate-500 
+                         file:mr-4 file:py-2 file:px-4 
+                         file:rounded-xl file:border-0 
+                         file:text-sm file:font-medium 
+                         file:bg-slate-100 file:text-slate-700 
+                         hover:file:bg-slate-200 
+                         transition-colors cursor-pointer" 
+              required 
+            />
           </div>
 
           <button type="submit" disabled={estado.tipo === 'cargando'} className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all">
