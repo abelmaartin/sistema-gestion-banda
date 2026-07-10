@@ -58,9 +58,11 @@ export default function Login() {
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-500/20 text-blue-400 mb-4 shadow-inner border border-blue-400/30">
             {/* Icono de música SVG */}
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-            </svg>
+            <img 
+              src="/logo.png" 
+              alt="Logo Agrupación Musical Isorana" 
+              className="h-8 w-8 object-contain" 
+            />
           </div>
           <h1 className="text-3xl font-bold text-white tracking-wide mb-1">Archivo Musical</h1>
           <p className="text-blue-200 font-medium tracking-wider text-sm uppercase">Agrupación Musical Isorana</p>
