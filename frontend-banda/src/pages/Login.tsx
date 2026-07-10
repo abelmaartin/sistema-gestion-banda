@@ -58,7 +58,7 @@ export default function Login() {
         <div className="text-center mb-10">
           <div className="flex items-center justify-center"> 
             <img 
-              src="/logo-redondo.png" 
+              src="/logo.png" 
               alt="Logo Agrupación Musical Isorana" 
               className="h-8 w-8 object-contain" 
             />
