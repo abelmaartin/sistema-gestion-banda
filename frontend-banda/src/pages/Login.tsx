@@ -46,7 +46,7 @@ export default function Login() {
 
   return (
     // Contenedor principal con imagen de fondo y efecto de oscurecimiento
-    <div className="min-h-screen flex items-center justify-center relative bg-[url('../../public/fondo-login.jpg')] bg-cover bg-center">
+    <div className="min-h-screen flex items-center justify-center relative bg-[url('/fondo-login.jpg')] bg-cover bg-center">
       
       {/* Capa negra semitransparente para que el texto resalte */}
       <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
