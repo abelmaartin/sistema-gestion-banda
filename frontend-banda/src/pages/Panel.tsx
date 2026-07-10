@@ -66,8 +66,8 @@ export default function Panel() {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-slate-800">Mi Archivo Musical</h1>
-              <p className="text-slate-500 text-sm">Banda de Guía de Isora</p>
+              <h1 className="text-xl md:text-2xl font-bold text-slate-800">Mi Archivo</h1>
+              <p className="text-slate-500 text-sm">Agrupación Musical Isorana</p>
             </div>
             
             {/* Botón Hamburguesa visible solo en móvil (< md) */}
