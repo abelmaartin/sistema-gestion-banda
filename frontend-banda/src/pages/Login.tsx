@@ -63,7 +63,7 @@ export default function Login() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-white tracking-wide mb-1">Archivo Musical</h1>
-          <p className="text-blue-200 font-medium tracking-wider text-sm uppercase">Banda de Guía de Isora</p>
+          <p className="text-blue-200 font-medium tracking-wider text-sm uppercase">Agrupación Musical Isorana</p>
         </div>
 
         {/* Mensaje de error animado */}
