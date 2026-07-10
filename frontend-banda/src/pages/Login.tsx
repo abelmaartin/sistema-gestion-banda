@@ -56,10 +56,9 @@ export default function Login() {
         
         {/* Cabecera */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-500/20 text-blue-400 mb-4 shadow-inner border border-blue-400/30">
-            {/* Icono de música SVG */}
+          <div className="flex items-center justify-center"> 
             <img 
-              src="/logo.png" 
+              src="/logo-redondo.png" 
               alt="Logo Agrupación Musical Isorana" 
               className="h-8 w-8 object-contain" 
             />
