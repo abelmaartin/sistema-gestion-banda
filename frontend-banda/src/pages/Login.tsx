@@ -46,7 +46,7 @@ export default function Login() {
 
   return (
     // Contenedor principal con imagen de fondo y efecto de oscurecimiento
-    <div className="min-h-screen flex items-center justify-center relative bg-[url('https://images.unsplash.com/photo-1573871666457-7c7329118cf9?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center">
+    <div className="min-h-screen flex items-center justify-center relative bg-[url('https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] bg-cover bg-center">
       
       {/* Capa negra semitransparente para que el texto resalte */}
       <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
