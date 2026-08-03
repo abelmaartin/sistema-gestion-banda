@@ -130,7 +130,7 @@ export default function AdminUsuarios() {
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100 text-slate-500 text-sm uppercase">
                   <th className="p-4 font-semibold">Músico</th>
-                  <th className="p-4 font-semibold"></th>
+                  <th className="p-4 font-semibold">Nombre de Usuario</th>
                   <th className="p-4 font-semibold">Rol</th>
                   <th className="p-4 font-semibold">Instrumento & Voz</th>
                   <th className="p-4 font-semibold text-right">Acciones</th>
@@ -180,7 +180,7 @@ export default function AdminUsuarios() {
                       /* MODO LECTURA */
                       <>
                         <td className="p-4 font-medium text-slate-800">{u.nombre} {u.apellido}</td>
-                        <td className="p-4 text-slate-600 text-sm">{u.email}</td>
+                        <td className="p-4 text-slate-600 text-sm">{u.username}</td>
                         <td className="p-4">
                           <span className={`px-3 py-1 rounded-lg text-xs font-bold ${u.rol === 'ADMIN' ? 'bg-purple-100 text-purple-700' : u.rol === 'PROFESOR' ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-700'}`}>
                             {u.rol}
