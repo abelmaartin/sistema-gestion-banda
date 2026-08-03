@@ -72,28 +72,28 @@ export default function AdminPartituras() {
               onClick={() => navigate('/admin/registrar')} 
               className="w-full md:w-auto px-5 py-2.5 bg-emerald-600 text-white font-medium rounded-xl shadow-sm hover:bg-emerald-700 transition-colors text-center"
             >
-              + Registrar Miembro
+              Registrar Miembro
             </button>
 
             <button 
               onClick={() => navigate('/admin/usuarios')} 
               className="w-full md:w-auto px-5 py-2.5 bg-sky-600 text-white font-medium rounded-xl shadow-sm hover:bg-sky-700 transition-colors text-center"
             >
-              👥 Gestionar Usuarios
+              Gestionar Usuarios
             </button>
 
             <button 
               onClick={() => navigate('/admin/crear-obra')} 
               className="w-full md:w-auto px-5 py-2.5 bg-amber-500 text-white font-medium rounded-xl shadow-sm hover:bg-amber-600 transition-colors text-center"
             > 
-              + Añadir Obra
+              Añadir Obra
             </button>
 
             <button 
               onClick={() => navigate('/subir')} 
               className="w-full md:w-auto px-5 py-2.5 bg-indigo-600 text-white font-medium rounded-xl shadow-sm hover:bg-indigo-700 transition-colors text-center"
             >
-              + Subir Nueva Partitura
+              Subir Nueva Partitura
             </button>
 
             <button 
