@@ -16,8 +16,9 @@ interface Obra {
 export default function GestionObras() {
   const navigate = useNavigate();
   
-  // Estados para la lista de obras y la vista actual
+  // Estados para la lista de obras, búsqueda y la vista actual
   const [obras, setObras] = useState<Obra[]>([]);
+  const [busqueda, setBusqueda] = useState('');
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [obraEditando, setObraEditando] = useState<Obra | null>(null);
   
@@ -114,7 +115,6 @@ export default function GestionObras() {
         method,
         headers: {
           'Authorization': `Bearer ${token}`
-          // IMPORTANTE: Quitamos el 'Content-Type': 'application/json'
         },
         body: formDataToSend
       });
@@ -165,6 +165,12 @@ export default function GestionObras() {
       alert("No se pudo eliminar la obra. Es posible que tenga archivos asociados o haya un error de conexión.");
     }
   };
+
+  // Filtrar obras según el buscador en tiempo real
+  const obrasFiltradas = obras.filter(obra => 
+    obra.titulo.toLowerCase().includes(busqueda.toLowerCase()) ||
+    (obra.compositor && obra.compositor.toLowerCase().includes(busqueda.toLowerCase()))
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-12">
@@ -273,11 +279,21 @@ export default function GestionObras() {
           // VISTA: LISTA DE OBRAS (Tabla)
           // ==============================
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-              <h3 className="text-lg font-semibold text-slate-800">Inventario ({obras.length})</h3>
-              <button onClick={abrirFormularioCrear} className="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-700 transition-colors shadow-sm">
-                + Nueva Obra
-              </button>
+            <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50">
+              <h3 className="text-lg font-semibold text-slate-800">Inventario ({obrasFiltradas.length})</h3>
+              
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <input 
+                  type="text"
+                  placeholder="Buscar por título o compositor..."
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                  className="w-full sm:w-64 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 text-slate-800"
+                />
+                <button onClick={abrirFormularioCrear} className="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-700 transition-colors shadow-sm whitespace-nowrap">
+                  + Nueva Obra
+                </button>
+              </div>
             </div>
             
             <div className="overflow-x-auto">
@@ -292,14 +308,14 @@ export default function GestionObras() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {obras.length === 0 ? (
+                  {obrasFiltradas.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="p-8 text-center text-slate-500">
-                        No hay obras registradas en el archivo todavía.
+                        No se encontraron obras con ese criterio de búsqueda.
                       </td>
                     </tr>
                   ) : (
-                    obras.map((obra) => (
+                    obrasFiltradas.map((obra) => (
                       <tr key={obra.id} className="hover:bg-slate-50/50 transition-colors">
                         <td className="p-4 font-medium text-slate-800">{obra.titulo}</td>
                         <td className="p-4 text-slate-600 hidden md:table-cell">{obra.compositor || '-'}</td>
