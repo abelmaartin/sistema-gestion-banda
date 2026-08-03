@@ -11,7 +11,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
+
+// 👇 AMPLIAMOS EL LÍMITE AQUÍ (50mb para que no rechace PDFs tochos de 104 páginas)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/obras', obrasRoutes);
