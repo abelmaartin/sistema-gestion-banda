@@ -21,13 +21,14 @@ export const obtenerUsuarios = async (req: any, res: any) => {
 export const actualizarUsuario = async (req: any, res: any) => {
   try {
     const { id } = req.params;
-    const { nombre, apellido, rol, instrumentoId, voz } = req.body;
+    const { nombre, apellido, username, rol, instrumentoId, voz } = req.body;
 
     const usuarioActualizado = await prisma.usuario.update({
       where: { id: Number(id) },
       data: {
         nombre,
         apellido,
+        username,
         rol,
         voz: instrumentoId ? voz : null,
         // Si hay instrumento, conectamos. Si viene vacío, desconectamos (por si el admin deja de tocar)
