@@ -15,8 +15,16 @@ export const obtenerObras = async (req: any, res: any) => {
 export const crearObra = async (req: any, res: any) => {
   try {
     const { titulo, compositor, arreglista, genero, ubicacionFisica, duracionEstimada } = req.body;
+    
+    // Si viene un archivo, Cloudinary nos deja la URL en req.file.path
+    const guionUrl = req.file ? req.file.path : null;
+
     const nuevaObra = await prisma.obra.create({
-      data: { titulo, compositor, arreglista, genero, ubicacionFisica, duracionEstimada },
+      data: { 
+        titulo, compositor, arreglista, genero, ubicacionFisica, 
+        duracionEstimada: duracionEstimada ? Number(duracionEstimada) : null,
+        guionUrl // Guardamos la URL de Cloudinary
+      },
     });
     res.status(201).json(nuevaObra);
   } catch (error) {
@@ -30,9 +38,20 @@ export const actualizarObra = async (req: any, res: any) => {
     const { id } = req.params;
     const { titulo, compositor, arreglista, genero, ubicacionFisica, duracionEstimada } = req.body;
 
+    // Preparamos los datos a actualizar
+    const dataToUpdate: any = { 
+      titulo, compositor, arreglista, genero, ubicacionFisica, 
+      duracionEstimada: duracionEstimada ? Number(duracionEstimada) : null 
+    };
+
+    // Si el usuario subió un PDF nuevo al editar, lo actualizamos. Si no, dejamos el que estaba.
+    if (req.file) {
+      dataToUpdate.guionUrl = req.file.path;
+    }
+
     const obraActualizada = await prisma.obra.update({
       where: { id: Number(id) },
-      data: { titulo, compositor, arreglista, genero, ubicacionFisica, duracionEstimada },
+      data: dataToUpdate,
     });
 
     res.status(200).json(obraActualizada);

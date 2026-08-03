@@ -58,6 +58,7 @@ model Obra {
   duracionEstimada Int?        // Duración en segundos
   createdAt       DateTime     @default(now()) // Fecha de registro automático
   updatedAt       DateTime     @updatedAt      // Se actualiza sola si modificamos la obra
+  guionUrl        String?
 
   // Relación inversa: Una obra tiene muchas particellas
   particellas     Particella[]

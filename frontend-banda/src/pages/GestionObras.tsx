@@ -10,6 +10,7 @@ interface Obra {
   genero: string;
   ubicacionFisica: string;
   duracionEstimada: number | string;
+  guionUrl?: string | null;
 }
 
 export default function GestionObras() {
@@ -20,10 +21,13 @@ export default function GestionObras() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [obraEditando, setObraEditando] = useState<Obra | null>(null);
   
-  // Estado del formulario
+  // Estado del formulario de texto
   const [formData, setFormData] = useState({
     titulo: '', compositor: '', arreglista: '', genero: '', ubicacionFisica: '', duracionEstimada: ''
   });
+  
+  // Estado exclusivo para el archivo PDF
+  const [archivoGuion, setArchivoGuion] = useState<File | null>(null);
   
   // Estado de mensajes y carga
   const [estado, setEstado] = useState({ loading: false, error: '', exito: '' });
@@ -56,6 +60,7 @@ export default function GestionObras() {
   const abrirFormularioCrear = () => {
     setObraEditando(null);
     setFormData({ titulo: '', compositor: '', arreglista: '', genero: '', ubicacionFisica: '', duracionEstimada: '' });
+    setArchivoGuion(null); // Limpiamos el archivo
     setEstado({ loading: false, error: '', exito: '' });
     setMostrarFormulario(true);
   };
@@ -70,11 +75,12 @@ export default function GestionObras() {
       ubicacionFisica: obra.ubicacionFisica || '',
       duracionEstimada: obra.duracionEstimada ? obra.duracionEstimada.toString() : ''
     });
+    setArchivoGuion(null); // Limpiamos por si había seleccionado uno antes
     setEstado({ loading: false, error: '', exito: '' });
     setMostrarFormulario(true);
   };
 
-  // 3. Enviar los datos (POST para crear, PUT para actualizar)
+  // 3. Enviar los datos (POST para crear, PUT para actualizar usando FormData)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setEstado({ loading: true, error: '', exito: '' });
@@ -87,16 +93,30 @@ export default function GestionObras() {
       
       const method = obraEditando ? 'PUT' : 'POST';
 
+      // Creamos el FormData para poder enviar archivos y texto a la vez
+      const formDataToSend = new FormData();
+      formDataToSend.append('titulo', formData.titulo);
+      formDataToSend.append('compositor', formData.compositor);
+      formDataToSend.append('arreglista', formData.arreglista);
+      formDataToSend.append('genero', formData.genero);
+      formDataToSend.append('ubicacionFisica', formData.ubicacionFisica);
+      
+      if (formData.duracionEstimada) {
+        formDataToSend.append('duracionEstimada', formData.duracionEstimada.toString());
+      }
+      
+      // Si el usuario ha seleccionado un archivo, lo adjuntamos con la clave 'guionPdf'
+      if (archivoGuion) {
+        formDataToSend.append('guionPdf', archivoGuion);
+      }
+
       const respuesta = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
+          // IMPORTANTE: Quitamos el 'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          ...formData,
-          duracionEstimada: formData.duracionEstimada ? parseInt(formData.duracionEstimada as string) : null
-        })
+        body: formDataToSend
       });
 
       if (!respuesta.ok) {
@@ -105,6 +125,7 @@ export default function GestionObras() {
       }
 
       setEstado({ loading: false, error: '', exito: obraEditando ? 'Obra actualizada.' : 'Obra registrada.' });
+      setArchivoGuion(null);
       
       // Recargar la lista y volver a la vista principal tras un segundito
       cargarObras();
@@ -123,7 +144,6 @@ export default function GestionObras() {
     const obrasAnteriores = [...obras];
     
     // 2. ¡BORRADO INSTANTÁNEO EN PANTALLA! 
-    // Actualizamos el estado de React antes de avisar al servidor
     setObras(obras.filter(obra => obra.id !== id));
 
     try {
@@ -133,7 +153,7 @@ export default function GestionObras() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
-      // 3. Si el servidor dice que hubo un error (ej. tiene particellas asociadas que bloquean el borrado)
+      // 3. Si el servidor dice que hubo un error
       if (!respuesta.ok) {
         throw new Error("El servidor rechazó el borrado");
       }
@@ -220,6 +240,21 @@ export default function GestionObras() {
                   placeholder="Ej: Archivo A - Caja 1" />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Guión del Director (PDF)</label>
+                <input 
+                  type="file" 
+                  accept="application/pdf"
+                  onChange={(e) => setArchivoGuion(e.target.files ? e.target.files[0] : null)}
+                  className="w-full p-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 text-slate-800 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100"
+                />
+                {obraEditando && obraEditando.guionUrl && !archivoGuion && (
+                  <p className="text-xs text-slate-500 mt-2">
+                    Ya hay un guión subido. Selecciona un archivo nuevo solo si quieres reemplazarlo.
+                  </p>
+                )}
+              </div>
+
               <button type="submit" disabled={estado.loading}
                 className="w-full mt-6 bg-amber-500 text-white py-3 px-4 rounded-xl font-medium hover:bg-amber-600 disabled:opacity-50 transition-colors">
                 {estado.loading ? 'Guardando...' : (obraEditando ? 'Guardar Cambios' : 'Registrar Obra')}
@@ -244,8 +279,8 @@ export default function GestionObras() {
                   <tr className="bg-white border-b border-slate-100 text-sm text-slate-500">
                     <th className="p-4 font-medium">Título</th>
                     <th className="p-4 font-medium hidden md:table-cell">Compositor</th>
-                    <th className="p-4 font-medium hidden lg:table-cell">Género</th>
                     <th className="p-4 font-medium hidden sm:table-cell">Ubicación</th>
+                    <th className="p-4 font-medium text-center">Guión</th>
                     <th className="p-4 font-medium text-right">Acciones</th>
                   </tr>
                 </thead>
@@ -261,13 +296,21 @@ export default function GestionObras() {
                       <tr key={obra.id} className="hover:bg-slate-50/50 transition-colors">
                         <td className="p-4 font-medium text-slate-800">{obra.titulo}</td>
                         <td className="p-4 text-slate-600 hidden md:table-cell">{obra.compositor || '-'}</td>
-                        <td className="p-4 text-slate-600 hidden lg:table-cell">{obra.genero || '-'}</td>
                         <td className="p-4 text-slate-600 hidden sm:table-cell">
                           {obra.ubicacionFisica ? (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
                               {obra.ubicacionFisica}
                             </span>
                           ) : '-'}
+                        </td>
+                        <td className="p-4 text-center">
+                          {obra.guionUrl ? (
+                            <a href={obra.guionUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 font-medium text-sm hover:underline">
+                              Ver PDF
+                            </a>
+                          ) : (
+                            <span className="text-slate-400 text-sm">-</span>
+                          )}
                         </td>
                         <td className="p-4 text-right space-x-3 text-sm">
                           <button onClick={() => abrirFormularioEditar(obra)} className="text-amber-600 hover:text-amber-800 font-medium">

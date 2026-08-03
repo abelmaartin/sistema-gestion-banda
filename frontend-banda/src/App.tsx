@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Panel from './pages/Panel';
 import SubirPartitura from './pages/SubirPartitura';
-import AdminPartituras from './pages/AdminPartituras';
+import AdminPartituras from './pages/Admin';
 import ProtectedRoute from './components/ProtectedRoute';
 import RegistrarUsuario from './pages/RegistrarUsuario';
 import AdminUsuarios from './pages/AdminUsuarios';
