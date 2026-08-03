@@ -100,7 +100,7 @@ export default function RegistrarUsuario() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Correo Electrónico</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Nombre de Usuario</label>
               <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required />
             </div>
             <div>
