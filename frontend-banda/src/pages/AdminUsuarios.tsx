@@ -52,6 +52,7 @@ export default function AdminUsuarios() {
     setFormData({
       nombre: usuario.nombre,
       apellido: usuario.apellido,
+      username: usuario.username,
       rol: usuario.rol,
       instrumentoId: usuario.instrumentoId || '',
       voz: usuario.voz || 'Única'
