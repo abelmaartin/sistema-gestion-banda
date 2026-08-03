@@ -3,33 +3,34 @@ import { useNavigate } from 'react-router-dom';
 
 export default function AdminPartituras() {
   const navigate = useNavigate();
-  const [partituras, setPartituras] = useState<any[]>([]);
+  // Cambiamos el estado para almacenar obras en lugar de particellas
+  const [obras, setObras] = useState<any[]>([]);
   const [menuAbierto, setMenuAbierto] = useState(false);
 
-  const cargarTodas = async () => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/particellas/todas`, {
+  const cargarObras = async () => {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/obras`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('tokenBanda')}` }
     });
-    if (res.ok) setPartituras(await res.json());
+    if (res.ok) setObras(await res.json());
   };
 
   useEffect(() => {
-    cargarTodas();
+    cargarObras();
   }, []);
 
-  const eliminarArchivo = async (id: number) => {
-    if (!window.confirm('¿Seguro que quieres borrar este PDF permanentemente?')) return;
+  const eliminarObra = async (id: number) => {
+    if (!window.confirm('¿Seguro que quieres borrar esta obra permanentemente?')) return;
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/particellas/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/obras/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('tokenBanda')}` }
       });
 
       if (res.ok) {
-        cargarTodas();
+        cargarObras();
       } else {
-        alert('Error al eliminar el archivo');
+        alert('Error al eliminar la obra');
       }
     } catch (error) {
       console.error(error);
@@ -112,37 +113,55 @@ export default function AdminPartituras() {
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100 text-slate-500 text-sm uppercase">
                   <th className="p-4 font-semibold">Obra</th>
-                  <th className="p-4 font-semibold">Instrumento</th>
-                  <th className="p-4 font-semibold">Voz</th>
+                  <th className="p-4 font-semibold hidden sm:table-cell">Compositor</th>
+                  <th className="p-4 font-semibold text-center">Guión (PDF)</th>
                   <th className="p-4 font-semibold text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {partituras.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-50/50">
-                    <td className="p-4 font-medium text-slate-800">{p.obra?.titulo}</td>
-                    <td className="p-4 text-slate-600">{p.instrumento?.nombre}</td>
-                    <td className="p-4">
-                      <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-sm">{p.voz}</span>
-                    </td>
-                    <td className="p-4 text-right flex justify-end gap-3">
-                      <a 
-                        href={p.nombreArchivo} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm transition-colors"
-                      >
-                        Ver PDF
-                      </a>
-                      <button 
-                        onClick={() => eliminarArchivo(p.id)}
-                        className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-sm transition-colors"
-                      >
-                        Eliminar
-                      </button>
+                {obras.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="p-8 text-center text-slate-500">
+                      No hay obras en el archivo.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  obras.map((obra) => (
+                    <tr key={obra.id} className="hover:bg-slate-50/50">
+                      <td className="p-4 font-medium text-slate-800">{obra.titulo}</td>
+                      <td className="p-4 text-slate-600 hidden sm:table-cell">{obra.compositor || '-'}</td>
+                      <td className="p-4 text-center">
+                        {obra.guionUrl ? (
+                          <a 
+                            href={obra.guionUrl} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="inline-block px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-lg text-sm transition-colors"
+                          >
+                            Ver PDF
+                          </a>
+                        ) : (
+                          <span className="text-slate-400 text-sm italic">Sin guión</span>
+                        )}
+                      </td>
+                      <td className="p-4 text-right flex justify-end gap-3">
+                        {/* El botón editar lleva al gestor completo de obras */}
+                        <button 
+                          onClick={() => navigate('/admin/crear-obra')}
+                          className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm transition-colors"
+                        >
+                          Editar
+                        </button>
+                        <button 
+                          onClick={() => eliminarObra(obra.id)}
+                          className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-sm transition-colors"
+                        >
+                          Eliminar
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
