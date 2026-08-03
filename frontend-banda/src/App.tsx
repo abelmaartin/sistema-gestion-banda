@@ -7,7 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import RegistrarUsuario from './pages/RegistrarUsuario';
 import AdminUsuarios from './pages/AdminUsuarios';
 import Perfil from './pages/Perfil';
-import CrearObra from './pages/CrearObra'; 
+import CrearObra from './pages/GestionObras'; 
 
 function App() {
   return (
