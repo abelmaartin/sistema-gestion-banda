@@ -115,9 +115,16 @@ export default function GestionObras() {
     }
   };
 
-  // 4. Eliminar una obra
+  // 4. Eliminar una obra (con Actualización Optimista)
   const handleEliminar = async (id: number, titulo: string) => {
     if (!window.confirm(`¿Estás seguro de que quieres eliminar la obra "${titulo}"?`)) return;
+
+    // 1. Guardamos una copia de seguridad del estado actual
+    const obrasAnteriores = [...obras];
+    
+    // 2. ¡BORRADO INSTANTÁNEO EN PANTALLA! 
+    // Actualizamos el estado de React antes de avisar al servidor
+    setObras(obras.filter(obra => obra.id !== id));
 
     try {
       const token = localStorage.getItem('tokenBanda');
@@ -126,13 +133,16 @@ export default function GestionObras() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
-      if (respuesta.ok) {
-        setObras(obras.filter(obra => obra.id !== id));
-      } else {
-        alert("Error al eliminar la obra");
+      // 3. Si el servidor dice que hubo un error (ej. tiene particellas asociadas que bloquean el borrado)
+      if (!respuesta.ok) {
+        throw new Error("El servidor rechazó el borrado");
       }
+      
     } catch (error) {
       console.error("Error al eliminar:", error);
+      // 4. Si algo falla (red, backend, etc.), restauramos la copia de seguridad
+      setObras(obrasAnteriores);
+      alert("No se pudo eliminar la obra. Es posible que tenga archivos asociados o haya un error de conexión.");
     }
   };
 
