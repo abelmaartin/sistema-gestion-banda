@@ -1,15 +1,15 @@
 import { Router } from 'express';
 import { obtenerObras, crearObra, actualizarObra, eliminarObra } from '../controllers/obras.controller';
-import { autorizarRoles } from '../middlewares/auth.middleware'; // O como se llame tu middleware
+import { autorizarRoles } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-// Rutas base
-router.get('/', autorizarRoles, obtenerObras);
-router.post('/', autorizarRoles, crearObra);
+// Ejemplo: Todos pueden ver el archivo musical
+router.get('/', autorizarRoles(['ADMIN', 'PROFESOR', 'MUSICO']), obtenerObras);
 
-// Nuevas rutas con el parámetro dinámico /:id
-router.put('/:id',  autorizarRoles, actualizarObra);
-router.delete('/:id', autorizarRoles, eliminarObra);
+// Ejemplo: Solo administradores (y quizá el director) pueden gestionar obras
+router.post('/', autorizarRoles(['ADMIN']), crearObra);
+router.put('/:id', autorizarRoles(['ADMIN']), actualizarObra);
+router.delete('/:id', autorizarRoles(['ADMIN']), eliminarObra);
 
 export default router;
