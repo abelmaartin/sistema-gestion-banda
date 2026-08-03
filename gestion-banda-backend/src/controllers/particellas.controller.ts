@@ -1,9 +1,8 @@
 import prisma from '../config/db';
-import fs from 'fs';
-import path from 'path';
 import cloudinary from '../config/cloudinary';
 import { Request, Response } from 'express';
 import { Readable } from 'stream';
+// Hemos eliminado 'fs' y 'path' porque ya todo está en la nube con Cloudinary
 
 export const obtenerMisPartituras = async (req: any, res: any) => {
   try {
@@ -69,7 +68,8 @@ export const obtenerMisPartituras = async (req: any, res: any) => {
 export const obtenerTodasParticellas = async (req: any, res: any) => {
   try {
     const todas = await prisma.particella.findMany({
-      include: { obra: true, instrumento: true }
+      include: { obra: true, instrumento: true },
+      orderBy: { obra: { titulo: 'asc' } } // Ordenamos alfabéticamente para mayor limpieza en el panel
     });
     res.status(200).json(todas);
   } catch (error) {
@@ -81,17 +81,8 @@ export const eliminarParticella = async (req: any, res: any) => {
   try {
     const { id } = req.params;
     
-    // 1. Buscamos la particella para saber el nombre del archivo
-    const particella = await prisma.particella.findUnique({ where: { id: Number(id) } });
-    if (!particella) return res.status(404).json({ error: 'Partitura no encontrada.' });
-
-    // 2. Borramos el archivo físico del servidor
-    const rutaArchivo = path.join(__dirname, '../../archivos_musicales', particella.nombreArchivo);
-    if (fs.existsSync(rutaArchivo)) {
-      fs.unlinkSync(rutaArchivo);
-    }
-
-    // 3. Borramos el registro de la base de datos PostgreSQL
+    // Como las partituras están alojadas en Cloudinary, eliminamos directamente el registro de la BD.
+    // (Opcional: Si en el futuro quieres borrar el archivo también de Cloudinary, usarías cloudinary.uploader.destroy)
     await prisma.particella.delete({ where: { id: Number(id) } });
 
     res.status(200).json({ mensaje: 'Partitura eliminada correctamente.' });
@@ -113,26 +104,23 @@ export const subirParticella = async (req: Request, res: Response) => {
     const subirACloudinary = new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         { 
-          folder: 'archivo_musical_isora', // Carpeta que se creará en tu Cloudinary
-          resource_type: 'auto' // 'auto' es necesario para aceptar PDFs
+          folder: 'archivo_musical_isora',
+          resource_type: 'auto' 
         },
         (error, result) => {
           if (error) return reject(error);
           resolve(result);
         }
       );
-      // Inyectamos el buffer de memoria en el stream de subida
       Readable.from(req.file!.buffer).pipe(uploadStream);
     });
 
-    // Esperamos a que Cloudinary termine y nos devuelva los datos
     const resultadoCloudinary: any = await subirACloudinary;
 
-    // 3. Guardamos TODO en la base de datos de Neon usando Prisma
+    // 3. Guardamos en la base de datos
     const nuevaParticella = await prisma.particella.create({
       data: {
         voz: voz,
-        // En lugar de un nombre local, guardamos la URL pública que nos dio Cloudinary
         nombreArchivo: resultadoCloudinary.secure_url, 
         obraId: parseInt(obraId),
         instrumentoId: parseInt(instrumentoId)
@@ -144,5 +132,49 @@ export const subirParticella = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error al subir la partitura:', error);
     res.status(500).json({ error: 'Error interno del servidor al procesar el archivo.' });
+  }
+};
+
+export const actualizarParticella = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { obraId, instrumentoId, voz } = req.body;
+
+    // Preparamos los metadatos a actualizar
+    const dataToUpdate: any = { 
+      voz: voz,
+      obraId: parseInt(obraId),
+      instrumentoId: parseInt(instrumentoId)
+    };
+
+    // Si el usuario adjuntó un PDF nuevo, lo subimos a Cloudinary y cambiamos la URL
+    if (req.file) {
+      const subirACloudinary = new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { 
+            folder: 'archivo_musical_isora',
+            resource_type: 'auto' 
+          },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+        Readable.from(req.file!.buffer).pipe(uploadStream);
+      });
+
+      const resultadoCloudinary: any = await subirACloudinary;
+      dataToUpdate.nombreArchivo = resultadoCloudinary.secure_url;
+    }
+
+    const particellaActualizada = await prisma.particella.update({
+      where: { id: Number(id) },
+      data: dataToUpdate,
+    });
+
+    res.status(200).json(particellaActualizada);
+  } catch (error) {
+    console.error('Error al actualizar la partitura:', error);
+    res.status(500).json({ error: 'Error al actualizar los datos de la particella' });
   }
 };
