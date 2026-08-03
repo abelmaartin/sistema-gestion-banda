@@ -227,9 +227,16 @@ export default function GestionObras() {
                     placeholder="Ej: Pasodoble..." />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Duración (segundos)</label>
-                  <input type="number" name="duracionEstimada" min="0" value={formData.duracionEstimada} onChange={handleChange}
-                    className="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 text-slate-800" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Duración (minutos)</label>
+                  <input 
+                    type="number" 
+                    name="duracionEstimada" 
+                    min="0"
+                    step="0.1"
+                    value={formData.duracionEstimada} 
+                    onChange={handleChange}
+                    className="w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 text-slate-800" 
+                  />
                 </div>
               </div>
 
