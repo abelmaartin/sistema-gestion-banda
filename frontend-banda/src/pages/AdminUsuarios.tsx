@@ -148,7 +148,9 @@ export default function AdminUsuarios() {
                           <input type="text" value={formData.nombre} onChange={e => setFormData({...formData, nombre: e.target.value})} className="block w-full border rounded p-1 mb-1" placeholder="Nombre" />
                           <input type="text" value={formData.apellido} onChange={e => setFormData({...formData, apellido: e.target.value})} className="block w-full border rounded p-1" placeholder="Apellido" />
                         </td>
-                        <td className="p-4 text-slate-500 text-sm">{u.username}</td>
+                        <td className="p-4">
+                          <input type="text" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} className="block w-full border rounded p-1 mb-1" placeholder="Nomrbe de Usuario" />
+                        </td>
                         <td className="p-4">
                           <select value={formData.rol} onChange={e => setFormData({...formData, rol: e.target.value})} className="w-full border rounded p-1">
                             <option value="MUSICO">MUSICO</option>
