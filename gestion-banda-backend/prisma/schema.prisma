@@ -55,7 +55,7 @@ model Obra {
   arreglista      String?      // El signo '?' significa que este campo puede ser nulo (opcional)
   genero          String
   ubicacionFisica String?      // Ej: "Caja 14", "Estantería A"
-  duracionEstimada Int?        // Duración en segundos
+  duracionEstimada Float?        // Duración en segundos
   createdAt       DateTime     @default(now()) // Fecha de registro automático
   updatedAt       DateTime     @updatedAt      // Se actualiza sola si modificamos la obra
   guionUrl        String?

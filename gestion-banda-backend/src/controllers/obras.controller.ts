@@ -38,7 +38,7 @@ export const crearObra = async (req: any, res: any) => {
     const nuevaObra = await prisma.obra.create({
       data: { 
         titulo, compositor, arreglista, genero, ubicacionFisica, 
-        duracionEstimada: duracionEstimada ? Number(duracionEstimada) : null,
+        duracionEstimada: duracionEstimada ? parseFloat(duracionEstimada) : null,
         guionUrl // Guardamos el enlace real de Cloudinary
       },
     });
@@ -56,7 +56,7 @@ export const actualizarObra = async (req: any, res: any) => {
 
     const dataToUpdate: any = { 
       titulo, compositor, arreglista, genero, ubicacionFisica, 
-      duracionEstimada: duracionEstimada ? Number(duracionEstimada) : null 
+      duracionEstimada: duracionEstimada ? parseFloat(duracionEstimada) : null 
     };
 
     // Si el usuario sube un PDF nuevo al editar...

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Obra" ALTER COLUMN "duracionEstimada" SET DATA TYPE DOUBLE PRECISION;
