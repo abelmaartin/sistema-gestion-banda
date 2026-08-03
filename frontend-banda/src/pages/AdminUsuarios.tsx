@@ -130,6 +130,7 @@ export default function AdminUsuarios() {
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100 text-slate-500 text-sm uppercase">
                   <th className="p-4 font-semibold">Músico</th>
+                  <th className="p-4 font-semibold"></th>
                   <th className="p-4 font-semibold">Rol</th>
                   <th className="p-4 font-semibold">Instrumento & Voz</th>
                   <th className="p-4 font-semibold text-right">Acciones</th>
