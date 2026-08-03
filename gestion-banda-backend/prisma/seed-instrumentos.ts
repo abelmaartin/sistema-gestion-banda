@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import prisma from '../src/config/db';
 
-async function main() {
-  // 1. Comprobamos si la tabla ya tiene datos para no duplicarlos por error
+// Le cambiamos el nombre a la función y le añadimos "export"
+export async function seedInstrumentos() {
   const cantidad = await prisma.instrumento.count();
   
   if (cantidad > 1) {
@@ -10,7 +10,6 @@ async function main() {
     return;
   }
 
-  // 2. Definimos la plantilla completa de la banda con su familia
   const instrumentos = [
     // Viento Madera
     { nombre: 'Flautín', familia: 'Viento Madera' },
@@ -34,19 +33,9 @@ async function main() {
     { nombre: 'Percusión', familia: 'Percusión' },
   ];
 
-  // 3. Inyectamos todos de golpe
   await prisma.instrumento.createMany({
     data: instrumentos,
   });
 
   console.log('✅ ¡Toda la plantilla de instrumentos ha sido creada con éxito!');
 }
-
-main()
-  .catch((e) => {
-    console.error('❌ Error al ejecutar el seed:', e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });

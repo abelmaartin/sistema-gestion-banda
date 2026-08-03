@@ -4,17 +4,17 @@ import prisma from '../config/db';
 
 export const registrarUsuario = async (req: any, res: any) => {
   try {
-    const { email, password, nombre, apellido, rol, instrumentoId, voz } = req.body;
-    const usuarioExistente = await prisma.usuario.findUnique({ where: { email } });
+    const { username, password, nombre, apellido, rol, instrumentoId, voz } = req.body;
+    const usuarioExistente = await prisma.usuario.findUnique({ where: { username } });
 
-    if (usuarioExistente) return res.status(400).json({ error: 'Este correo ya está registrado en la banda.' });
+    if (usuarioExistente) return res.status(400).json({ error: 'Este nombre de usuario ya está registrado en la banda.' });
 
     const saltRounds = 10;
     const passwordEncriptada = await bcrypt.hash(password, saltRounds);
 
     const nuevoUsuario = await prisma.usuario.create({
       data: { 
-        email, 
+        username, 
         password: passwordEncriptada, 
         nombre, 
         apellido, 
@@ -35,8 +35,8 @@ export const registrarUsuario = async (req: any, res: any) => {
 
 export const loginUsuario = async (req: any, res: any) => {
   try {
-    const { email, password } = req.body;
-    const usuario = await prisma.usuario.findUnique({ where: { email } });
+    const { username, password } = req.body;
+    const usuario = await prisma.usuario.findUnique({ where: { username } });
 
     if (!usuario) return res.status(401).json({ error: 'Credenciales inválidas.' });
 
@@ -51,7 +51,7 @@ export const loginUsuario = async (req: any, res: any) => {
 
     res.status(200).json({
       mensaje: 'Login exitoso', token,
-      usuario: { id: usuario.id, nombre: usuario.nombre, apellido: usuario.apellido, email: usuario.email, rol: usuario.rol }
+      usuario: { id: usuario.id, nombre: usuario.nombre, apellido: usuario.apellido, username: usuario.username, rol: usuario.rol }
     });
   } catch (error) {
     console.error(error);

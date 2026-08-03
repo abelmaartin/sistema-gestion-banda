@@ -5,7 +5,7 @@ export default function RegistrarUsuario() {
   const navigate = useNavigate();
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rol, setRol] = useState('MUSICO');
   const [instrumentoId, setInstrumentoId] = useState('');
@@ -43,7 +43,7 @@ export default function RegistrarUsuario() {
         body: JSON.stringify({
           nombre,
           apellido,
-          email,
+          username,
           password,
           rol,
           instrumentoId: instrumentoId || null, 
@@ -58,7 +58,7 @@ export default function RegistrarUsuario() {
       setEstado({ tipo: 'exito', mensaje: `¡${nombre} ha sido registrado correctamente!` });
       
       // Limpiar formulario
-      setNombre(''); setApellido(''); setEmail(''); setPassword(''); setRol('MUSICO'); setInstrumentoId('');
+      setNombre(''); setApellido(''); setUsername(''); setPassword(''); setRol('MUSICO'); setInstrumentoId('');
       setTimeout(() => navigate('/admin'), 2000);
 
     } catch (err: any) {
@@ -101,7 +101,7 @@ export default function RegistrarUsuario() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">Correo Electrónico</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required />
+              <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">Contraseña Temporal</label>
