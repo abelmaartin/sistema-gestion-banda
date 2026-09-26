@@ -6,6 +6,7 @@ export default function AdminPartituras() {
   // Cambiamos el estado para almacenar obras en lugar de particellas
   const [obras, setObras] = useState<any[]>([]);
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [descargando, setDescargando] = useState<number | null>(null);
 
   const cargarObras = async () => {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/api/obras`, {
@@ -34,6 +35,35 @@ export default function AdminPartituras() {
       }
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  // NUEVA FUNCIÓN: Fuerza la descarga directa del PDF
+  const descargarPDF = async (url: string, nombreObra: string, id: number) => {
+    setDescargando(id);
+    try {
+      // Obtenemos el archivo como datos binarios (blob)
+      const response = await fetch(url);
+      const blob = await response.blob();
+      
+      // Creamos una URL local para ese blob
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      // Creamos un enlace invisible, le asignamos el nombre y forzamos el clic
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `Guion_${nombreObra.replace(/\s+/g, '_')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Limpiamos el rastro
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Error al descargar el PDF:', error);
+      alert('Hubo un problema al intentar descargar el archivo.');
+    } finally {
+      setDescargando(null);
     }
   };
 
@@ -66,7 +96,7 @@ export default function AdminPartituras() {
             </button>
           </div>
 
-          {/* Contenedor de Botones (Oculto en móvil por defecto, visible en desktop) */}
+          {/* Contenedor de Botones */}
           <div className={`${menuAbierto ? 'flex' : 'hidden'} md:flex flex-col md:flex-row md:flex-wrap gap-3 mt-6 md:mt-6`}>
             
             <button 
@@ -89,15 +119,6 @@ export default function AdminPartituras() {
             > 
               Gestionar Obras
             </button>
-
-            {/*
-            <button 
-              onClick={() => navigate('/subir')} 
-              className="w-full md:w-auto px-5 py-2.5 bg-indigo-600 text-white font-medium rounded-xl shadow-sm hover:bg-indigo-700 transition-colors text-center"
-            >
-              Gestionar Partituras
-            </button>
-            */}
 
             <button 
               onClick={() => navigate('/panel')} 
@@ -132,22 +153,43 @@ export default function AdminPartituras() {
                     <tr key={obra.id} className="hover:bg-slate-50/50">
                       <td className="p-4 font-medium text-slate-800">{obra.titulo}</td>
                       <td className="p-4 text-slate-600 hidden sm:table-cell">{obra.compositor || '-'}</td>
-                      <td className="p-4 text-center">
-                        {obra.guionUrl ? (
-                          <a 
-                            href={obra.guionUrl} 
-                            target="_blank" 
-                            rel="noreferrer"
-                            className="inline-block px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-lg text-sm transition-colors"
-                          >
-                            Ver PDF
-                          </a>
-                        ) : (
-                          <span className="text-slate-400 text-sm italic">Sin guión</span>
-                        )}
+                      
+                      <td className="p-4">
+                        <div className="flex justify-center gap-2">
+                          {obra.guionUrl ? (
+                            <>
+                              {/* Botón original: Abrir en pestaña nueva */}
+                              <a 
+                                href={obra.guionUrl} 
+                                target="_blank" 
+                                rel="noreferrer"
+                                className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-lg text-sm transition-colors"
+                              >
+                                Ver
+                              </a>
+                              {/* Botón nuevo: Forzar descarga directa */}
+                              <button
+                                onClick={() => descargarPDF(obra.guionUrl, obra.titulo, obra.id)}
+                                disabled={descargando === obra.id}
+                                className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium rounded-lg text-sm transition-colors flex items-center gap-1 disabled:opacity-50"
+                              >
+                                {descargando === obra.id ? (
+                                  <span>...</span>
+                                ) : (
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                  </svg>
+                                )}
+                                Descargar
+                              </button>
+                            </>
+                          ) : (
+                            <span className="text-slate-400 text-sm italic py-1.5">Sin guión</span>
+                          )}
+                        </div>
                       </td>
+
                       <td className="p-4 text-right flex justify-end gap-3">
-                        {/* El botón editar lleva al gestor completo de obras */}
                         <button 
                           onClick={() => navigate('/admin/crear-obra')}
                           className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm transition-colors"
